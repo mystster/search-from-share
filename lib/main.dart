@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:receive_sharing_intent_plus/receive_sharing_intent_plus.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 void main() {
@@ -40,7 +40,7 @@ class _SearchPageState extends State<SearchPage> {
     super.initState();
 
     // For sharing or opening urls/text coming from outside the app while the app is in the memory
-    _intentDataStreamSubscription = ReceiveSharingIntentPlus.instance
+    _intentDataStreamSubscription = ReceiveSharingIntent.instance
         .getMediaStream()
         .listen((List<SharedMediaFile> value) {
       if (value.isNotEmpty && value.first.type == SharedMediaType.text) {
@@ -51,7 +51,7 @@ class _SearchPageState extends State<SearchPage> {
     });
 
     // For sharing or opening urls/text coming from outside the app while the app is closed
-    ReceiveSharingIntentPlus.instance
+    ReceiveSharingIntent.instance
         .getInitialMedia()
         .then((List<SharedMediaFile> value) {
       if (value.isNotEmpty && value.first.type == SharedMediaType.text) {
