@@ -42,18 +42,21 @@ class _SearchPageState extends State<SearchPage> {
     // For sharing or opening urls/text coming from outside the app while the app is in the memory
     _intentDataStreamSubscription = ReceiveSharingIntent.instance
         .getMediaStream()
-        .listen((List<SharedMediaFile> value) {
-      if (value.isNotEmpty && value.first.type == SharedMediaType.text) {
-        _handleSharedText(value.first.path);
-      }
-    }, onError: (err) {
-      debugPrint("getIntentDataStream error: $err");
-    });
+        .listen(
+          (List<SharedMediaFile> value) {
+            if (value.isNotEmpty && value.first.type == SharedMediaType.text) {
+              _handleSharedText(value.first.path);
+            }
+          },
+          onError: (err) {
+            debugPrint("getIntentDataStream error: $err");
+          },
+        );
 
     // For sharing or opening urls/text coming from outside the app while the app is closed
-    ReceiveSharingIntent.instance
-        .getInitialMedia()
-        .then((List<SharedMediaFile> value) {
+    ReceiveSharingIntent.instance.getInitialMedia().then((
+      List<SharedMediaFile> value,
+    ) {
       if (value.isNotEmpty && value.first.type == SharedMediaType.text) {
         _handleSharedText(value.first.path);
       }
@@ -68,8 +71,27 @@ class _SearchPageState extends State<SearchPage> {
 
   Future<void> _handleSharedText(String text) async {
     if (text.isEmpty) return;
-    
-    final Uri url = Uri.parse('https://www.google.com/search?q=${Uri.encodeComponent(text)}');
+
+    // Remove URLs from the text
+    final urlRegExp = RegExp(r'https?://\S+');
+    var cleanText = text.replaceAll(urlRegExp, '').trim();
+
+    // Remove surrounding quotes if present
+    if (cleanText.startsWith('"') &&
+        cleanText.endsWith('"') &&
+        cleanText.length >= 2) {
+      cleanText = cleanText.substring(1, cleanText.length - 1).trim();
+    }
+
+    if (cleanText.isEmpty) {
+      // If only URL was shared, or text became empty, just close the app
+      SystemNavigator.pop();
+      return;
+    }
+
+    final Uri url = Uri.parse(
+      'https://www.google.com/search?q=${Uri.encodeComponent(cleanText)}',
+    );
     try {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } catch (e) {
@@ -82,10 +104,6 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }
