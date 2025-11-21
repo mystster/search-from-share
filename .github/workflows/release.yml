@@ -21,8 +21,12 @@ jobs:
 
       - run: flutter pub get
 
-      - run: flutter build apk --release
-      - run: flutter build appbundle --release
+      - name: Extract version
+        id: extract_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - run: flutter build apk --release --build-name=${{ steps.extract_version.outputs.VERSION }} --build-number=${{ github.run_number }}
+      - run: flutter build appbundle --release --build-name=${{ steps.extract_version.outputs.VERSION }} --build-number=${{ github.run_number }}
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
