@@ -112,8 +112,7 @@ class _ShareAppState extends State<ShareApp> with WidgetsBindingObserver {
     }
 
     // URLを除去する
-    // 改行 + URL のパターンを除去
-    final urlRegex = RegExp(r'\nhttps?://\S+');
+    final urlRegex = RegExp(r'https?://\S+');
     String query = text.replaceAll(urlRegex, '').trim();
 
     // 引用符を除去する
