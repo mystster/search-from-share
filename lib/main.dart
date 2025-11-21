@@ -2,11 +2,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(const MyApp());
+}
+
+// Custom Tabs用のエントリポイント
+@pragma('vm:entry-point')
+void mainForCustomTabs() {
+  runApp(const ShareApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -25,27 +31,44 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class SearchPage extends StatefulWidget {
+class SearchPage extends StatelessWidget {
   const SearchPage({super.key});
 
   @override
-  State<SearchPage> createState() => _SearchPageState();
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: Text("Search from Share Settings")),
+    );
+  }
 }
 
-class _SearchPageState extends State<SearchPage> {
-  late StreamSubscription _intentDataStreamSubscription;
+class ShareApp extends StatefulWidget {
+  const ShareApp({super.key});
+
+  @override
+  State<ShareApp> createState() => _ShareAppState();
+}
+
+class _ShareAppState extends State<ShareApp> with WidgetsBindingObserver {
+  String _sharedText = "";
+  StreamSubscription? _intentDataStreamSubscription;
+  bool _isCustomTabOpened = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     // For sharing or opening urls/text coming from outside the app while the app is in the memory
     _intentDataStreamSubscription = ReceiveSharingIntent.instance
         .getMediaStream()
         .listen(
-          (List<SharedMediaFile> value) {
+          (value) {
             if (value.isNotEmpty && value.first.type == SharedMediaType.text) {
-              _handleSharedText(value.first.path);
+              setState(() {
+                _sharedText = value.first.path;
+              });
+              _handleSharedText(_sharedText);
             }
           },
           onError: (err) {
@@ -54,56 +77,86 @@ class _SearchPageState extends State<SearchPage> {
         );
 
     // For sharing or opening urls/text coming from outside the app while the app is closed
-    ReceiveSharingIntent.instance.getInitialMedia().then((
-      List<SharedMediaFile> value,
-    ) {
+    ReceiveSharingIntent.instance.getInitialMedia().then((value) {
       if (value.isNotEmpty && value.first.type == SharedMediaType.text) {
-        _handleSharedText(value.first.path);
+        setState(() {
+          _sharedText = value.first.path;
+        });
+        _handleSharedText(_sharedText);
+      } else {
+        // 共有以外で起動された場合は終了
+        SystemNavigator.pop();
       }
     });
   }
 
   @override
   void dispose() {
-    _intentDataStreamSubscription.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    _intentDataStreamSubscription?.cancel();
     super.dispose();
   }
 
-  Future<void> _handleSharedText(String text) async {
-    if (text.isEmpty) return;
-
-    // Remove URLs from the text
-    final urlRegExp = RegExp(r'https?://\S+');
-    var cleanText = text.replaceAll(urlRegExp, '').trim();
-
-    // Remove surrounding quotes if present
-    if (cleanText.startsWith('"') &&
-        cleanText.endsWith('"') &&
-        cleanText.length >= 2) {
-      cleanText = cleanText.substring(1, cleanText.length - 1).trim();
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _isCustomTabOpened) {
+      _isCustomTabOpened = false;
+      SystemNavigator.pop();
     }
+  }
 
-    if (cleanText.isEmpty) {
-      // If only URL was shared, or text became empty, just close the app
+  Future<void> _handleSharedText(String text) async {
+    if (text.isEmpty) {
       SystemNavigator.pop();
       return;
     }
 
-    final Uri url = Uri.parse(
-      'https://www.google.com/search?q=${Uri.encodeComponent(cleanText)}',
+    // URLを除去する
+    // 改行 + URL のパターンを除去
+    final urlRegex = RegExp(r'\nhttps?://\S+');
+    String query = text.replaceAll(urlRegex, '').trim();
+
+    // 引用符を除去する
+    // 先頭と末尾が " で囲まれている場合のみ除去
+    if (query.startsWith('"') && query.endsWith('"') && query.length >= 2) {
+      query = query.substring(1, query.length - 1);
+    }
+
+    if (query.isEmpty) {
+      SystemNavigator.pop();
+      return;
+    }
+
+    final url = Uri.parse(
+      'https://www.google.com/search?q=${Uri.encodeComponent(query)}',
     );
+
     try {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
+      _isCustomTabOpened = true;
+      await launchUrl(
+        url,
+        customTabsOptions: const CustomTabsOptions(
+          showTitle: true,
+          urlBarHidingEnabled: true,
+        ),
+        safariVCOptions: const SafariViewControllerOptions(
+          barCollapsingEnabled: true,
+          dismissButtonStyle: SafariViewControllerDismissButtonStyle.close,
+        ),
+      );
     } catch (e) {
-      debugPrint('Could not launch $url: $e');
-    } finally {
-      // Close the app
+      debugPrint("Error launching Custom Tabs: $e");
+      _isCustomTabOpened = false;
       SystemNavigator.pop();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    // UIは表示しない（透明またはローディング）
+    return MaterialApp(
+      home: const Scaffold(body: Center(child: CircularProgressIndicator())),
+      theme: ThemeData(useMaterial3: true),
+    );
   }
 }
