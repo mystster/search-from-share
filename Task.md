@@ -27,3 +27,13 @@
 - [x] **検索スキップ時のToast通知**
     - 共有されたテキストが空であったり、有効な検索クエリが生成できなかった場合に、ユーザーにその旨を通知するToastを表示する機能。
     - 現在は何もせず終了しているため、フィードバックを追加する。
+
+- [ ] **リファクタリング**
+    - `CustomTabActivity` と `ShareActivity` で重複している共有テキスト処理（URL除去、引用符除去、クエリ生成）を共通クラス（例: `SharedTextHandler`）に抽出する。
+    - ハードコードされている文字列（Google検索URL、正規表現など）を定数化する。
+    - 他にリファクタリング可能な箇所がないか調査する。
+
+- [x] **リリースビルドの失敗の修正**
+    - `./gradlew assembleRelease bundleRelease` が失敗する原因を特定し修正する。
+    - 現状、署名設定（Signing Config）が `build.gradle.kts` に存在しないため、署名エラーまたはLintエラーの可能性がある。
+    - GitHub Actions (`release.yml`) が正常に完了するようにする。
