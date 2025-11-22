@@ -20,7 +20,10 @@ class ShareActivity : Activity() {
 
     private fun handleSharedText(intent: Intent) {
         val sharedText = intent.getStringExtra(Intent.EXTRA_TEXT) ?: return
-        if (sharedText.isBlank()) return
+        if (sharedText.isBlank()) {
+            android.widget.Toast.makeText(this, R.string.toast_search_skipped, android.widget.Toast.LENGTH_LONG).show()
+            return
+        }
 
         // Remove URLs
         val urlRegex = Regex("https?://\\S+")
@@ -31,7 +34,10 @@ class ShareActivity : Activity() {
             cleanText = cleanText.substring(1, cleanText.length - 1).trim()
         }
 
-        if (cleanText.isBlank()) return
+        if (cleanText.isBlank()) {
+            android.widget.Toast.makeText(this, R.string.toast_search_skipped, android.widget.Toast.LENGTH_LONG).show()
+            return
+        }
 
         val query = URLEncoder.encode(cleanText, "UTF-8")
         val searchUrl = "https://www.google.com/search?q=$query"
