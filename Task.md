@@ -37,3 +37,15 @@
     - `./gradlew assembleRelease bundleRelease` が失敗する原因を特定し修正する。
     - 現状、署名設定（Signing Config）が `build.gradle.kts` に存在しないため、署名エラーまたはLintエラーの可能性がある。
     - GitHub Actions (`release.yml`) が正常に完了するようにする。
+
+- [ ] **バージョニングの自動化**
+    - GitHub ActionsのReleaseを実行し、リリースビルドを作成した際、APKに埋め込まれているバージョンがGitタグ（例: `v0.0.4`）と一致していない（`build.gradle.kts` の固定値が使われる）。
+    - リリースフローにおいて、Gitタグに基づいて `versionName` と `versionCode` を適切に設定するように修正する。
+
+- [x] **APKファイルのアップロード修正**
+    - GitHub ActionsのReleaseフロー完了後、ReleaseページにAPKファイルが添付されていない（AABのみになっている）。
+    - 署名設定を追加したことにより、生成されるAPKのファイル名が変更された（`app-release-unsigned.apk` → `app-release.apk`）可能性があるため、`release.yml` を修正してAPKもアップロードされるようにする。
+
+- [ ] **アダプティブアイコン対応**
+    - 現在のアイコンをAndroid 8.0以降の標準であるアダプティブアイコンに対応させる。
+    - アイコンの背景レイヤーの色は「#70D3A8」とする。
