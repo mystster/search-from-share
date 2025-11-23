@@ -17,6 +17,7 @@
 ## 注意事項
 - TaskやImplementation Plan、Walkthroughを含め、やりとりはすべて日本語にしてください。
 - ただしコミットメッセージは英語にしてください。
+- コミットメッセージはConventional Commitsの規則に従ってください。
 
 ---
 
@@ -38,7 +39,7 @@
     - 現状、署名設定（Signing Config）が `build.gradle.kts` に存在しないため、署名エラーまたはLintエラーの可能性がある。
     - GitHub Actions (`release.yml`) が正常に完了するようにする。
 
-- [ ] **バージョニングの自動化**
+- [x] **バージョニングの自動化**
     - GitHub ActionsのReleaseを実行し、リリースビルドを作成した際、APKに埋め込まれているバージョンがGitタグ（例: `v0.0.4`）と一致していない（`build.gradle.kts` の固定値が使われる）。
     - リリースフローにおいて、Gitタグに基づいて `versionName` と `versionCode` を適切に設定するように修正する。
 
