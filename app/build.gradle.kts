@@ -57,7 +57,7 @@ fun getVersionName(): String {
         }
         stdout.toString().trim().removePrefix("v")
     } catch (e: Exception) {
-        "0.0.0"
+        "0.0.1"
     }
 }
 
