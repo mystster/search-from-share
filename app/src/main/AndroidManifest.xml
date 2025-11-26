@@ -37,7 +37,7 @@
         <activity
             android:name=".CustomTabActivity"
             android:exported="true"
-            android:label="検索 (Custom Tab)"
+            android:label="@string/custom_tab_activity_label"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:excludeFromRecents="true"
             android:noHistory="true">
@@ -52,7 +52,7 @@
         <activity
             android:name=".ShareActivity"
             android:exported="true"
-            android:label="検索"
+            android:label="@string/share_activity_label"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:excludeFromRecents="true"
             android:noHistory="true">
