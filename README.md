@@ -1,28 +1,44 @@
 # Search from Share
 
-Androidの共有メニューからテキストを受け取り、Google検索を行うシンプルなFlutterアプリです。
+**Search from Share** is a lightweight Android utility app that allows you to search Google directly from the Android Share menu. It accepts shared text, processes it to extract the search query, and opens the results instantly.
 
-## 機能
+## 🚀 Key Features
 
-- Androidの共有メニュー（テキスト選択時の「共有」など）に表示されます。
-- 共有されたテキストを受け取り、自動的にブラウザを起動してGoogle検索を行います。
-- 検索開始後、アプリは自動的に終了します。
+*   **Instant Search**: Simply share any text to "Search from Share" to start a Google search immediately.
+*   **Native Performance**: Built with pure Android Native (Kotlin) to eliminate engine startup overhead and ensure zero UI lag.
+*   **Chrome Custom Tabs**: Search results open within the app using Chrome Custom Tabs for a fast, integrated, and secure browsing experience.
+*   **Smart Text Processing**: Automatically cleans shared text by removing URLs and surrounding quotes to find the actual search query.
+*   **Unobtrusive**: The app runs as a transparent activity and does not clutter your app drawer (hidden from launcher).
+*   **User Feedback**: Provides immediate feedback (Toast) if the shared text is empty or invalid.
 
-## 開発環境
+## 🛠 Technical Stack
 
-- Flutter: 3.29.2
-- Dart: 3.7.0
+*   **Language**: Kotlin
+*   **Architecture**: Native Android (Activity-based)
+*   **Browser Integration**: Chrome Custom Tabs (`androidx.browser:browser`)
+*   **Build System**: Gradle (Kotlin DSL)
+*   **CI/CD**: GitHub Actions
 
-## セットアップ
+## 📦 Installation
 
-1. リポジトリをクローンします。
-2. 依存関係をインストールします。
-   ```bash
-   flutter pub get
-   ```
+This app is designed to be installed via APK.
+1.  Download the latest APK from the [Releases](https://github.com/mystster/search-from-share/releases) page.
+2.  Install the APK on your Android device.
+3.  Select text in any app, tap "Share", and choose "Search from Share".
 
-## ビルド
+## 💻 Development
 
+### Prerequisites
+*   Android Studio
+*   JDK 17
+
+### Build
+To build the debug APK:
 ```bash
-flutter build apk
+./gradlew assembleDebug
+```
+
+To build the release APK (requires signing configuration):
+```bash
+./gradlew assembleRelease
 ```
