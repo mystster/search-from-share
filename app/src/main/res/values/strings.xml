@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Search from Share</string>
-    <string name="toast_search_skipped">検索テキストが空です</string>
-    <string name="custom_tab_activity_label">検索 (Custom Tab)</string>
-    <string name="share_activity_label">検索</string>
+    <string name="toast_search_skipped">Search text is empty</string>
+    <string name="custom_tab_activity_label">Search (Custom Tab)</string>
+    <string name="share_activity_label">Search</string>
     <string name="settings_title">Search from Share Settings</string>
 </resources>
