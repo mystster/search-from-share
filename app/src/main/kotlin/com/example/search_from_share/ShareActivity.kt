@@ -1,12 +1,16 @@
 package com.example.search_from_share
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import java.net.URLEncoder
+import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 
-class ShareActivity : Activity() {
+class ShareActivity : AppCompatActivity() {
+
+    companion object {
+        private const val TAG = "ShareActivity"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,33 +23,30 @@ class ShareActivity : Activity() {
     }
 
     private fun handleSharedText(intent: Intent) {
-        val sharedText = intent.getStringExtra(Intent.EXTRA_TEXT) ?: return
-        if (sharedText.isBlank()) {
-            android.widget.Toast.makeText(this, R.string.toast_search_skipped, android.widget.Toast.LENGTH_LONG).show()
+        val sharedText = intent.getStringExtra(Intent.EXTRA_TEXT)
+        val searchUrl = sharedText.toSearchUrl()
+
+        if (searchUrl == null) {
+            android.widget.Toast.makeText(
+                            this,
+                            R.string.toast_search_skipped,
+                            android.widget.Toast.LENGTH_LONG
+                    )
+                    .show()
             return
         }
 
-        // Remove URLs
-        val urlRegex = Regex("https?://\\S+")
-        var cleanText = urlRegex.replace(sharedText, "").trim()
+        try {
+            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(searchUrl))
 
-        // Remove surrounding quotes
-        if (cleanText.startsWith("\"") && cleanText.endsWith("\"") && cleanText.length >= 2) {
-            cleanText = cleanText.substring(1, cleanText.length - 1).trim()
-        }
-
-        if (cleanText.isBlank()) {
-            android.widget.Toast.makeText(this, R.string.toast_search_skipped, android.widget.Toast.LENGTH_LONG).show()
-            return
-        }
-
-        val query = URLEncoder.encode(cleanText, "UTF-8")
-        val searchUrl = "https://www.google.com/search?q=$query"
-        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(searchUrl))
-        
-        // Verify there's a browser to handle this
-        if (browserIntent.resolveActivity(packageManager) != null) {
-            startActivity(browserIntent)
+            // Verify there's a browser to handle this
+            if (browserIntent.resolveActivity(packageManager) != null) {
+                startActivity(browserIntent)
+            } else {
+                Log.w(TAG, "No browser app found to handle the intent.")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to launch browser for URL: $searchUrl", e)
         }
     }
 }

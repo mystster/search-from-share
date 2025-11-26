@@ -1,15 +1,15 @@
 package com.example.search_from_share
 
-import android.app.Activity
 import android.os.Bundle
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 
-class SettingsActivity : Activity() {
+class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         val textView = TextView(this)
-        textView.text = "Search from Share Settings"
+        textView.text = getString(R.string.settings_title)
         setContentView(textView)
     }
 }
